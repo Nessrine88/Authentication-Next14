@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../app/globals.css';
 import Link from 'next/link';
+import Logout from './logout';
 
 
 const Navbar = () => {
@@ -20,6 +21,9 @@ const Navbar = () => {
           <li>About</li>
           <li>Services</li>
           <li>How It Works</li>
+          <li>
+            <Logout />
+          </li>
         </ul>
         <button className='border-solid border-black border-[2px] px-5 py-2 hover:bg-[#32aa27] hover:text-white ml-10 hover:border-white'>
           CONTACT

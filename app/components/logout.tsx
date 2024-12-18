@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const Logout = () => {
   const [loading, setLoading] = useState(false);
@@ -53,16 +54,17 @@ const Logout = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-semibold text-center mb-6">Logout</h2>
+    <ProtectedRoute>
+    <div className="">
+      <div className="">
+
         
         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
         <div className="text-center">
           <button
             onClick={handleLogout}
-            className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className=""
             disabled={loading}
           >
             {loading ? 'Logging out...' : 'Logout'}
@@ -70,6 +72,7 @@ const Logout = () => {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 };
 

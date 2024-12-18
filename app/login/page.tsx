@@ -42,7 +42,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(data));
 
       // Redirect to logout page (or anywhere else)
-      router.push("/logout");
+      router.push("/tasks");
 
     } catch (error) {
       console.error("Login error:", error);

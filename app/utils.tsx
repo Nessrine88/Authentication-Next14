@@ -1,35 +1,74 @@
 import { differenceInDays, addDays, format } from "date-fns";
+import { jwtDecode } from "jwt-decode";
+
+// Decode the JWT token to extract the user ID
+const getUserFromToken = (): string | null => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const decodedToken = jwtDecode<{ sub: string }>(token);
+      return decodedToken.sub; // Return the user ID
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  }
+  return null; // Return null if no token exists
+};
 
 // Handle form submission for updating daily task status
-const handleStatusChange = async (taskId: string, checked: boolean, id: string) => {
-  // Wrap the checked value inside a 'daily_task' object
+const handleStatusChange = async (
+  taskId: string,
+  checked: boolean,
+  date: string,  // Add the date to the request payload
+  user_id: string, // Use the user ID passed directly
+  statuses: boolean[], // Pass the statuses array to update it after the change
+  setStatuses: React.Dispatch<React.SetStateAction<Map<string, boolean[]>>> // Update the type to Map<string, boolean[]>
+) => {
+  if (!user_id) {
+    console.error("User ID is undefined");
+    return;
+  }
+
   const dailyStatusData = {
     daily_task: {
-      checked: checked, // Send 'checked' instead of 'status'
-    }
+      status: checked, // Send 'status' (based on your backend)
+      date: date, // Send the date of the task
+    },
   };
 
   try {
-    const response = await fetch(`http://localhost:3000/tasks/${taskId}/daily_tasks/${id}`, {
-      method: "PUT", // Use 'PUT' correctly in uppercase
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dailyStatusData), // Send data inside daily_task
-    });
+    const response = await fetch(
+      `http://localhost:3000/users/${user_id}/tasks/${taskId}/daily_task_tables`, // POST endpoint for new task status
+      {
+        method: "POST", // Change PUT to POST
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dailyStatusData),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error(errorData);
-      alert("There was an error submitting the form.");
+      console.error("Error submitting task:", errorData);
     } else {
-      alert("Task status updated successfully!");
+      // After successfully updating, update the status in the local state
+      setStatuses((prevStatuses) => {
+        const updatedStatuses = new Map(prevStatuses); // Make a copy of the map
+        const taskStatuses = updatedStatuses.get(taskId) || [];
+        const statusIndex = taskStatuses.findIndex((_, index) => format(addDays(new Date(), index), "yyyy-MM-dd") === date);
+        if (statusIndex >= 0) {
+          taskStatuses[statusIndex] = checked; // Update the specific status in the array
+          updatedStatuses.set(taskId, taskStatuses); // Update the map with the new task status
+        }
+        return updatedStatuses;
+      });
     }
   } catch (error) {
     console.error("Error submitting task:", error);
   }
 };
-
 
 // Generate table dates for header
 export const generateTableDates = (startDate: string, endDate: string) => {
@@ -56,21 +95,20 @@ export const generateEmptyTable = (
   taskId: string,
   startDate: string,
   endDate: string,
-  statuses: boolean[] = []  // Default to an empty array if statuses are missing
+  statuses: boolean[] = [],  // Default to an empty array if statuses are missing
+  setStatuses: React.Dispatch<React.SetStateAction<Map<string, boolean[]>>> // Add state setter to handle status updates
 ) => {
   let cols: JSX.Element[] = [];
   if (!startDate || !endDate) return cols;
 
   const colsNumber = differenceInDays(new Date(endDate), new Date(startDate)) + 1;
 
-  // Ensure statuses array is the same length as columns, fill missing with 'false'
-  while (statuses.length < colsNumber) {
-    statuses.push(false);
-  }
+  const userId = getUserFromToken(); // Get user ID from token directly
 
   for (let i = 0; i < colsNumber; i++) {
     const date = addDays(new Date(startDate), i);
-    const dailyTaskId = `${taskId}-${i + 1}`; // Unique daily task ID
+    const taskDate = format(date, "yyyy-MM-dd"); // Format the date for the task
+    const isChecked = statuses[i]; // Determine if the checkbox should be checked
 
     cols.push(
       <td
@@ -80,8 +118,21 @@ export const generateEmptyTable = (
           <label className="flex justify-center items-center">
             <input
               type="checkbox"
-              checked={statuses[i]}  // Use status for checkbox state
-              onChange={(e) => handleStatusChange(taskId, e.target.checked, dailyTaskId)}  // Pass taskId and dailyTaskId
+              checked={isChecked} // Set the checkbox state based on the current status
+              onChange={(e) => {
+                if (userId) {
+                  handleStatusChange(
+                    taskId,
+                    e.target.checked,
+                    taskDate,  // Pass the formatted date to the handler
+                    userId,
+                    statuses,
+                    setStatuses
+                  ); // Use the decoded user ID and update the status
+                } else {
+                  console.error("User not found");
+                }
+              }}
             />
           </label>
         </div>

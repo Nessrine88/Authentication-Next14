@@ -18,12 +18,9 @@ const PlannificationPage = () => {
   // Decode the JWT token to get the user ID
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token from localStorage:", token);
-
     if (token) {
       try {
         const decodedToken = jwtDecode<{ sub: string }>(token);
-        console.log("Decoded Token:", decodedToken);
         setUserId(decodedToken.sub); // Set userId based on 'sub'
       } catch (error) {
         console.error("Error decoding token:", error);
@@ -31,59 +28,63 @@ const PlannificationPage = () => {
     }
   }, []);
 
-  // To see the updated userId after it's set
-  useEffect(() => {
-    console.log("User ID after state update:", userId);
-  }, [userId]);
-
   const handlePopup = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Submit task when userId is available
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // Check if userId is available
     if (!userId) {
       console.error("User ID is not available.");
       return;
     }
-
+  
     const taskData = {
       title: title,
-      start_date: startDate,
-      end_date: endDate,
+      startDate: startDate,
+      endDate: endDate,
       user_id: userId,
     };
-
+  
     try {
       const response = await fetch(`http://localhost:3000/users/${userId}/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",  // This is the correct way to include credentials (cookies) in fetch
         body: JSON.stringify({ task: taskData }),
       });
-
+  
       if (!response.ok) {
+        // Handle error response
         const errorData = await response.json();
         console.error(errorData);
-        alert("There was an error submitting the form.");
+        if (response.status === 401) {
+          alert("You are not authorized. Please log in.");
+        } else {
+          alert("There was an error submitting the form.");
+        }
       } else {
         const newTask = await response.json();
         setSubmitted(true);
         setIsModalOpen(false);
         setTasks((prevTasks) => [...prevTasks, newTask]);
+        window.location.reload();
       }
     } catch (error) {
       console.error("Error submitting task:", error);
+      alert("An error occurred while submitting the task. Please try again.");
     }
   };
+  
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-8 pt-40">
+      <div className=" bg-gradient-to-br from-blue-50 to-blue-500 p-8 pt-40">
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={handlePopup}
@@ -158,31 +159,6 @@ const PlannificationPage = () => {
           </div>
         )}
 
-        {/* Display tasks */}
-        {tasks.length > 0 && (
-          <div className="bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto overflow-x-auto z-50 mt-10">
-            <table className="w-full border-collapse bg-gray-50 rounded-lg overflow-hidden">
-              <thead>
-                <tr>{generateTableDates(startDate, endDate)}</tr>
-              </thead>
-              <tbody>
-                {tasks.map((task, index) => (
-                  <tr key={task.id}>
-                    {generateEmptyTable(
-                      task.id,
-                      task.start_date,
-                      task.end_date,
-                      [],
-                      [],
-                      () => {},
-                      () => {}
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </>
   );
