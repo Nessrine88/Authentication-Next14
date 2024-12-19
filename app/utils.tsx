@@ -22,8 +22,6 @@ const handleStatusChange = async (
   checked: boolean,
   date: string,  // Add the date to the request payload
   user_id: string, // Use the user ID passed directly
-  statuses: boolean[], // Pass the statuses array to update it after the change
-  setStatuses: React.Dispatch<React.SetStateAction<Map<string, boolean[]>>> // Update the type to Map<string, boolean[]>
 ) => {
   if (!user_id) {
     console.error("User ID is undefined");
@@ -52,19 +50,7 @@ const handleStatusChange = async (
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error submitting task:", errorData);
-    } else {
-      // After successfully updating, update the status in the local state
-      setStatuses((prevStatuses) => {
-        const updatedStatuses = new Map(prevStatuses); // Make a copy of the map
-        const taskStatuses = updatedStatuses.get(taskId) || [];
-        const statusIndex = taskStatuses.findIndex((_, index) => format(addDays(new Date(), index), "yyyy-MM-dd") === date);
-        if (statusIndex >= 0) {
-          taskStatuses[statusIndex] = checked; // Update the specific status in the array
-          updatedStatuses.set(taskId, taskStatuses); // Update the map with the new task status
-        }
-        return updatedStatuses;
-      });
-    }
+    } 
   } catch (error) {
     console.error("Error submitting task:", error);
   }
@@ -72,7 +58,7 @@ const handleStatusChange = async (
 
 // Generate table dates for header
 export const generateTableDates = (startDate: string, endDate: string) => {
-  let cols: JSX.Element[] = [];
+  let cols: any= [];
   if (!startDate || !endDate) return cols;
 
   const colsNumber = differenceInDays(new Date(endDate), new Date(startDate)) + 1;
@@ -90,15 +76,23 @@ export const generateTableDates = (startDate: string, endDate: string) => {
   return cols;
 };
 
+
+
 // Generate table with checkboxes and task statuses
 export const generateEmptyTable = (
   taskId: string,
   startDate: string,
   endDate: string,
-  statuses: boolean[] = [],  // Default to an empty array if statuses are missing
-  setStatuses: React.Dispatch<React.SetStateAction<Map<string, boolean[]>>> // Add state setter to handle status updates
 ) => {
-  let cols: JSX.Element[] = [];
+  const status = async( )=> {
+    const user_id = getUserFromToken()
+    const res = fetch(`http://localhost:3000/users/${user_id}/tasks/${taskId}/daily_task_tables`)
+    console.log(res);
+    
+    return res
+  }
+  status()
+  let cols: any = [];
   if (!startDate || !endDate) return cols;
 
   const colsNumber = differenceInDays(new Date(endDate), new Date(startDate)) + 1;
@@ -108,7 +102,6 @@ export const generateEmptyTable = (
   for (let i = 0; i < colsNumber; i++) {
     const date = addDays(new Date(startDate), i);
     const taskDate = format(date, "yyyy-MM-dd"); // Format the date for the task
-    const isChecked = statuses[i]; // Determine if the checkbox should be checked
 
     cols.push(
       <td
@@ -118,7 +111,6 @@ export const generateEmptyTable = (
           <label className="flex justify-center items-center">
             <input
               type="checkbox"
-              checked={isChecked} // Set the checkbox state based on the current status
               onChange={(e) => {
                 if (userId) {
                   handleStatusChange(
@@ -126,8 +118,6 @@ export const generateEmptyTable = (
                     e.target.checked,
                     taskDate,  // Pass the formatted date to the handler
                     userId,
-                    statuses,
-                    setStatuses
                   ); // Use the decoded user ID and update the status
                 } else {
                   console.error("User not found");
