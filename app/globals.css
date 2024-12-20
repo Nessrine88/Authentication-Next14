@@ -19,3 +19,23 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+#check-box-1:checked ~ .check-1 {
+  @apply text-opacity-100;
+  animation:  check-anime 0.5s 1;
+}
+/* Tailwind doesn't directly support animation inside @keyframes with @apply, so use regular CSS */
+@keyframes check-anime {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Apply the animation when the checkbox is checked */
+.peer-checked\:animate-check {
+  animation: check-anime 0.5s ease-in-out 1;
+}

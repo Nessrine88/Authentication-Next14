@@ -12,6 +12,9 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      backgroundImage: {
+        'checkbox-checked': "url('./check.png')", // Add custom background image if necessary
+      }
     },
   },
   plugins: [],

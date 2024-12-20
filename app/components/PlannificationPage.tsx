@@ -84,11 +84,11 @@ const PlannificationPage = () => {
   return (
     <>
       <Navbar />
-      <div className=" bg-gradient-to-br from-blue-50 to-blue-500 p-8 pt-40">
+      <div className=" bg-gradient-to-br from-blue-50 to-blue-500 p-8 pt-40 z-50">
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={handlePopup}
-            className="px-4 py-2 bg-white text-black rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             Create New Task
           </button>
@@ -96,7 +96,7 @@ const PlannificationPage = () => {
 
         {/* Modal Popup */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-lg w-96">
               <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Create Task</h2>
               <form onSubmit={handleSubmit}>
