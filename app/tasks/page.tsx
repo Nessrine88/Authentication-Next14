@@ -143,7 +143,7 @@ const Tasks = () => {
             <label className="flex justify-center items-center relative cursor-pointer">
               <input
                 id="check-box-1"
-                className="w-10 h-10 peer appearance-none rounded-sm border border-gray-900 checked:outline-none"
+                className={`w-10 h-10 peer appearance-none rounded-sm border border-gray-900 ${taskStatus ? 'border-none' : 'border'}`}
                 type="checkbox"
                 checked={taskStatus || false}
                 onChange={(e) => {
@@ -219,39 +219,43 @@ const Tasks = () => {
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
         ) : tasks.length > 0 ? (
-          <div className="bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto mt-10 overflow-hidden">
-            {tasks.map((task: any) => (
-              <div key={task.id} className="task-container my-6 bg-white p-6 rounded-lg shadow-md overflow-auto">
-                <h2 className="text-xl font-bold mb-4">{task.title}</h2>
+          <div className="bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto mt-10 overflow-x-auto">
+            {tasks.map((task: any) => {
+           const cols = generateEmptyTable(task.id, task.startDate, task.endDate);
+            return (
+              
+              <ul key={task.id}>
+                <li className="my-6 text-lg font-semibold text-gray-800">
+                  Task {task.title} ({cols.length}days)
+                </li>
                 <table className="w-full border-collapse bg-gray-50 rounded-lg overflow-hidden mb-6">
                   <thead>
-                    <tr>{generateTableDates(task.startDate, task.endDate)}</tr>
+                    <tr>{generateTableDates( task.startDate, task.endDate)}</tr>
                   </thead>
                   <tbody>
                     <tr>{generateEmptyTable(task.id, task.startDate, task.endDate)}</tr>
                   </tbody>
                 </table>
-
                 <div className="flex justify-center pt-5">
                   <div className="w-[50rem] rounded-full bg-gray-200 h-10">
                     <div
                       className="bg-green-600 w-full h-full rounded-full text-white flex items-center justify-center"
                       style={{ width: `${progress[task.id] || 0}%` }}
                     >
-                      <div className="">
+                      <div className="w-fit">
                         {progress[task.id]}%
                       </div>
                     </div>
                   </div>
                 </div>
-                <button
+              <button
                   onClick={() => handleRemove(task.id)}
                   className="mt-4 text-red-500 hover:text-red-700 text-sm font-semibold"
                 >
                   Remove Task
                 </button>
-              </div>
-            ))}
+              </ul>
+)})}
           </div>
         ) : (
           <p className="text-center text-gray-500">No tasks available</p>
