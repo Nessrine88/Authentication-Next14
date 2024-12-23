@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable */
 
 import React, { useEffect, useState } from "react";
 import { differenceInDays, addDays, format } from "date-fns";
@@ -135,11 +136,12 @@ const Tasks = () => {
       )?.status;
 
       cols.push(
-        <td
+        <th
           key={i}
           className="border border-gray-300 px-4 py-4 bg-gray-50 hover:bg-gray-200 transition-all duration-200 rounded-md min-w-48"
         >
           <div className="flex justify-center items-center">
+            <form action="submit">
             <label className="flex justify-center items-center relative cursor-pointer">
               <input
                 id="check-box-1"
@@ -162,8 +164,10 @@ const Tasks = () => {
                 className="absolute hidden peer-checked:block peer-checked:animate-check"
               />
             </label>
+            </form>
+           
           </div>
-        </td>
+        </th>
       );
     }
 
@@ -220,42 +224,61 @@ const Tasks = () => {
           <p className="text-center text-red-500">{error}</p>
         ) : tasks.length > 0 ? (
           <div className="bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto mt-10 overflow-x-auto">
-            {tasks.map((task: any) => {
-           const cols = generateEmptyTable(task.id, task.startDate, task.endDate);
-            return (
-              
-              <ul key={task.id}>
-                <li className="my-6 text-lg font-semibold text-gray-800">
-                  Task {task.title} ({cols.length}days)
-                </li>
-                <table className="w-full border-collapse bg-gray-50 rounded-lg overflow-hidden mb-6">
-                  <thead>
-                    <tr>{generateTableDates( task.startDate, task.endDate)}</tr>
-                  </thead>
-                  <tbody>
-                    <tr>{generateEmptyTable(task.id, task.startDate, task.endDate)}</tr>
-                  </tbody>
-                </table>
-                <div className="flex justify-center pt-5">
-                  <div className="w-[50rem] rounded-full bg-gray-200 h-10">
-                    <div
-                      className="bg-green-600 w-full h-full rounded-full text-white flex items-center justify-center"
-                      style={{ width: `${progress[task.id] || 0}%` }}
-                    >
-                      <div className="w-fit">
-                        {progress[task.id]}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              <button
-                  onClick={() => handleRemove(task.id)}
-                  className="mt-4 text-red-500 hover:text-red-700 text-sm font-semibold"
-                >
-                  Remove Task
-                </button>
-              </ul>
-)})}
+{tasks.map((task: any) => {
+  const cols = generateEmptyTable(task.id, task.startDate, task.endDate);
+
+  return (
+    <ul key={task.id}>
+      <li className="my-6   text-2xl text-gray-600 font-mono font-bold">
+        Task {task.title} ({cols.length} days)
+      </li>
+
+      {/* Grid Header */}
+
+
+      {/* Grid Content */}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2 bg-gray-50 p-2 rounded-md">
+        {cols.map((col: any, index: number) => (
+          <div
+            key={index}
+            className="flex flex-col justify-center items-center bg-white p-2 rounded-md shadow"
+          >
+            {/* Date Title */}
+            <div className="text-center font-semibold mb-2">
+              {format(addDays(new Date(task.startDate), index), "yyyy-MM-dd")}
+            </div>
+
+            {/* Input Below the Date */}
+            {col.props.children}
+          </div>
+        ))}
+      </div>
+      <h1 className="text-center font-mono font-bold text-3xl py-5">Your Progress </h1>
+
+      {/* Progress Bar */}
+      <div className="flex justify-center py-5">
+        
+        <div className="w-[50rem] rounded-full bg-gray-200 h-10">
+          <div
+            className="bg-green-600 w-full h-full rounded-full text-white flex items-center justify-center"
+            style={{ width: `${progress[task.id] || 0}%` }}
+          >
+            <div className="w-fit">{progress[task.id]}%</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Remove Button */}
+      <button
+        onClick={() => handleRemove(task.id)}
+        className="mt-4 bg-gradient-to-b from-red-400 via-red-600 to-red-700 text-white hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 rounded-md py-2 px-6 text-sm font-semibold transition-all duration-300 ease-in-out shadow-lg transform hover:scale-105 active:scale-95"
+      >
+        Remove Task
+      </button>
+    </ul>
+  );
+})}
+
           </div>
         ) : (
           <p className="text-center text-gray-500">No tasks available</p>

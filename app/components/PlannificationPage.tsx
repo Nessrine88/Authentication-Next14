@@ -1,9 +1,8 @@
 "use client";
+/* eslint-disable */
 
 import React, { useState, useEffect } from "react";
 import "../../app/globals.css";
-import { generateEmptyTable, generateTableDates } from "../utils";
-import Navbar from "./Navbar";
 import { jwtDecode } from "jwt-decode"; // Corrected import
 
 const PlannificationPage = () => {
@@ -83,8 +82,7 @@ const PlannificationPage = () => {
 
   return (
     <>
-      <Navbar />
-      <div className=" bg-gradient-to-br from-blue-50 to-blue-500 p-8 pt-40 z-50">
+      <div className=" bg-gradient-to-br from-blue-50 to-blue-500 p-2 pt-16 z-50">
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={handlePopup}

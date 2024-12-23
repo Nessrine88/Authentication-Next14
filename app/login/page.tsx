@@ -104,7 +104,7 @@ const Login = () => {
 
         <div className="mt-4 text-center">
           <Link href="/registration" className="text-sm text-blue-500 hover:underline">
-            You don't have an account?
+          You don&#39;t have an account?
           </Link>
         </div>
 

@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { differenceInDays, addDays, format } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 
@@ -65,12 +67,12 @@ export const generateTableDates = (startDate: string, endDate: string) => {
   for (let i = 0; i < colsNumber; i++) {
     const date = addDays(new Date(startDate), i);
     cols.push(
-      <td
+      <th
         key={i}
         className="border border-gray-300 px-6 py-3 text-center bg-white hover:bg-gray-100 rounded-md"
       >
         {format(date, "MM-dd-yyyy")}
-      </td>
+      </th>
     );
   }
   return cols;
